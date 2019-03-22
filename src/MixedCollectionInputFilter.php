@@ -4,7 +4,7 @@
  * @license   https://opensource.org/licenses/BSD-3-Clause New BSD License
  */
 
-namespace Application\InputFilter;
+namespace metalinspired\MixedCollectionInputFilter;
 
 use Zend\InputFilter\BaseInputFilter;
 use Zend\InputFilter\Exception;
