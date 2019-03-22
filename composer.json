@@ -1,0 +1,23 @@
+{
+  "name": "metalinspired/zend-mixed-collection-input-filter",
+  "description": "Extended collection input filter that allows using different input filter per collection item",
+  "license": "BSD-3-Clause",
+  "keywords": [
+    "zf",
+    "zendframework",
+    "inputfilter"
+  ],
+  "config": {
+    "sort-packages": true
+  },
+  "require": {
+    "php": "^7.0",
+    "zendframework/zend-inputfilter": "^2.9.0",
+    "zendframework/zend-validator": "^2.9.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "metalinspired\\MixedCollectionInputFilter\\": "src/"
+    }
+  }
+}
