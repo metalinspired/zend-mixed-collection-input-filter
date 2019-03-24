@@ -9,6 +9,7 @@ namespace metalinspired\MixedCollectionInputFilter;
 use Zend\InputFilter\BaseInputFilter;
 use Zend\InputFilter\Exception;
 use Zend\InputFilter\InputFilter;
+use Zend\InputFilter\InputFilterInterface;
 use Zend\Validator\NotEmpty;
 
 class MixedCollectionInputFilter extends InputFilter
@@ -86,31 +87,60 @@ class MixedCollectionInputFilter extends InputFilter
     }
 
     /**
+     * Set the input filter used for specific collection item type
+     *
+     * @param string                                  $name
+     * @param array|\Traversable|InputFilterInterface $inputFilter
+     * @return MixedCollectionInputFilter
+     * @throws Exception\RuntimeException
+     */
+    public function setInputFilter(string $name, $inputFilter) : MixedCollectionInputFilter
+    {
+        if (\is_array($inputFilter) || $inputFilter instanceof \Traversable) {
+            $inputFilter = $this->getFactory()->createInputFilter($inputFilter);
+        }
+
+        if (! $inputFilter instanceof BaseInputFilter) {
+            throw new Exception\RuntimeException(sprintf(
+                '%s expects an instance of %s; received "%s"',
+                __METHOD__,
+                BaseInputFilter::class,
+                (\is_object($inputFilter) ? \get_class($inputFilter) : \gettype($inputFilter))
+            ));
+        }
+
+        $this->inputFilters[$name] = $inputFilter;
+
+        return $this;
+    }
+
+    /**
+     * Get the input filter used for specific collection item type
+     *
+     * @param string $name
+     * @return BaseInputFilter|null
+     */
+    public function getInputFilter(string $name)
+    {
+        return $this->inputFilters[$name] ?? null;
+    }
+
+    /**
+     * Set input filters used for filtering collection items
+     *
      * @param $inputFilters
      * @return MixedCollectionInputFilter
+     * @throws Exception\RuntimeException
      */
     public function setInputFilters($inputFilters) : MixedCollectionInputFilter
     {
         if (\is_array($inputFilters) || $inputFilters instanceof \Traversable) {
             foreach ($inputFilters as $name => $inputFilter) {
                 if (! \is_string($name)) {
-                    throw new Exception\RuntimeException('Input filter key is not string');
+                    throw new Exception\RuntimeException('Input filter key is not a string');
                 }
 
-                if (\is_array($inputFilter) || $inputFilter instanceof \Traversable) {
-                    $inputFilter = $this->getFactory()->createInputFilter($inputFilter);
-                }
-
-                if (! $inputFilter instanceof BaseInputFilter) {
-                    throw new Exception\RuntimeException(sprintf(
-                        '%s expects an instance of %s; received "%s"',
-                        __METHOD__,
-                        BaseInputFilter::class,
-                        (\is_object($inputFilter) ? \get_class($inputFilter) : \gettype($inputFilter))
-                    ));
-                }
-
-                $this->inputFilters[$name] = $inputFilter;
+                $this->setInputFilter($name, $inputFilter);
             }
         }
 
@@ -118,6 +148,8 @@ class MixedCollectionInputFilter extends InputFilter
     }
 
     /**
+     * Get input filters used for filtering collection items
+     *
      * @return BaseInputFilter[]
      */
     public function getInputFilters() : array
@@ -126,21 +158,12 @@ class MixedCollectionInputFilter extends InputFilter
     }
 
     /**
-     * Get the input filter used when looping the data
+     * Set behavior for when name key is missing in collection item
      *
-     * @param string $name
-     * @return BaseInputFilter|null
-     */
-    protected function getInputFilter(string $name)
-    {
-        if (! isset($this->inputFilters[$name])) {
-            return null;
-        }
-
-        return $this->inputFilters[$name];
-    }
-
-    /**
+     * If set to true and collection item is missing a key with name
+     * used for identifying input filter, validation will fail and
+     * message of missing key will be added to messages array
+     *
      * @param bool $invalid
      * @return MixedCollectionInputFilter
      */
@@ -152,6 +175,12 @@ class MixedCollectionInputFilter extends InputFilter
     }
 
     /**
+     * Get behavior for when name key is missing in collection item
+     *
+     * If set to true and collection item is missing a key with name
+     * used for identifying input filter, validation will fail and
+     * missing name key message will be added to messages array
+     *
      * @return bool
      */
     public function getNameKeyMissingInvalid() : bool
@@ -160,6 +189,13 @@ class MixedCollectionInputFilter extends InputFilter
     }
 
     /**
+     * Set behavior for when filter is missing for collection item
+     *
+     * If set to true and value of name key in collection item
+     * can't be mapped to input filter in input filters array,
+     * validation will fail and missing filter message will be
+     * added to messages array
+     *
      * @param bool $invalid
      * @return MixedCollectionInputFilter
      */
@@ -171,6 +207,13 @@ class MixedCollectionInputFilter extends InputFilter
     }
 
     /**
+     * Get behavior for when filter is missing for collection item
+     *
+     * If set to true and value of name key in collection item
+     * can't be mapped to input filter in input filters array,
+     * validation will fail and missing filter message will be
+     * added to messages array
+     *
      * @return bool
      */
     public function getFilterMissingInvalid() : bool
