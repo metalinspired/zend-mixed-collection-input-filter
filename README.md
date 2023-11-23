@@ -1,4 +1,9 @@
 # zend-mixed-collection-input-filter
+
+> ## Repository abandoned 2023-11-23
+>
+> This repository has moved to [metalinspired/laminas-mixed-collection-input-filter](https://github.com/metalinspired/laminas-mixed-collection-input-filter).
+
 This collection input filter allows you to define multiple input filters for collection items.
 Practical usage would be if you have an array (collection) of items which can have different structure and, thus, would require different input filter to filter/validate each item in collection.
 
